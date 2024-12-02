@@ -23,34 +23,39 @@ const generarJWT = (uid) => {
 }
 
 
-const validarJWT = async (req, res, next)=>{
+const validarJWT = async (req, res, next) => {
     const token = req.header("x-token");
-    if(!token){
+    if (!token) {
         return res.status(401).json({
             msg: "No hay token en la peticion"
-        })
+        });
     }
+
     try {
-        const {uid} = jwt.verify(token, process.env.SECRETORPRIVATEKEY)
-        let user = await usuariosModel.findById(uid)
-        console.log(uid);
-        if(!user){
+        const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);  // Verificar token
+        let user = await usuariosModel.findById(uid);
+        console.log(uid);  // Verifica el UID extraído
+
+        if (!user) {
             return res.status(401).json({
-                msg:"Token no valido - usuario no existe"
-            })
+                msg: "Token no válido - usuario no existe"
+            });
         }
-        if(!user.estado){
+
+        if (!user.estado) {
             return res.status(401).json({
-                msg:"Token no valido - usuario inactivo"
-            })
+                msg: "Token no válido - usuario inactivo"
+            });
         }
-        next()
+
+        next();  // El token es válido y el usuario está activo, pasa al siguiente middleware
 
     } catch (error) {
         res.status(401).json({
-            msg:"Token no valido"
-        })
+            msg: "Token no válido"
+        });
     }
-}
+};
+
 
 export {generarJWT, validarJWT}
